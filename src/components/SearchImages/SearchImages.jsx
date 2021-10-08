@@ -74,7 +74,7 @@ class SearchImages extends Component {
   };
 
   onPictureOpen = (largeUrl) => {
-    this.setState({ largeImageURL: largeUrl });
+    this.setState({ largeImageURL: largeUrl, showModal: true });
   };
 
   changeModal = () => {
