@@ -4,7 +4,7 @@ import styles from "./SearchImages.module.css";
 import Searchbar from "../Searchbar/Searchbar";
 import ImageGallery from "../ImageGallery/ImageGallery";
 import Button from "../Button/Button";
-import { fetchImages } from "../Api/api";
+import { fetchImages } from "../../Api/api";
 import Loader from "../Loader/Loader";
 import Modal from "../Modal/Modal";
 
@@ -24,6 +24,7 @@ class SearchImages extends Component {
     this.setState({
       query,
       loading: true,
+      page: 1,
     });
   };
 
