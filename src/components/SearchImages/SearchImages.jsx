@@ -1,12 +1,14 @@
 import { Component } from "react";
 
-import styles from "./SearchImages.module.css";
 import Searchbar from "../Searchbar/Searchbar";
 import ImageGallery from "../ImageGallery/ImageGallery";
 import Button from "../Button/Button";
-import { fetchImages } from "../../Api/api";
 import Loader from "../Loader/Loader";
 import Modal from "../Modal/Modal";
+
+import { fetchImages } from "../../Api/api";
+
+import styles from "../SearchImages/SearchImages.module.css";
 
 class SearchImages extends Component {
   state = {
@@ -16,7 +18,7 @@ class SearchImages extends Component {
     error: null,
     query: "",
     total: 0,
-    largeImageURL: {},
+    largeImageURL: "",
     showModal: false,
   };
 
@@ -28,39 +30,39 @@ class SearchImages extends Component {
     });
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_, prevState) {
     if (prevState.query !== this.state.query) {
       this.setState({
         list: [],
+        isLoading: true,
       });
       this.makeGallery();
       return;
     }
   }
 
-  makeGallery = () => {
+  makeGallery = async () => {
     const { query, page } = this.state;
-    this.setState({ isLoading: true });
 
-    fetchImages(query, page)
-      .then(({ hits, total }) => {
-        this.setState((prevState) => ({
-          list: [...prevState.list, ...hits],
-          page: prevState.page + 1,
-          total,
-          isLoading: false,
-        }));
-        if (page !== 1) {
-          this.scroll();
-        }
+    try {
+      const data = await fetchImages(query, page);
+      const { hits, total } = data;
+      this.setState(({ list, page }) => ({
+        list: [...list, ...hits],
+        page: page + 1,
+        total,
+        isLoading: false,
+      }));
+      if (page !== 1) {
+        this.scroll();
+      }
 
-        console.log("state", this.state.list);
-        if (total === 0) {
-          alert("There are no pictures");
-        }
-      })
-      .catch((error) => alert(error.message))
-      .finally(() => this.setState({ isLoading: false }));
+      // if (!total) {
+      //   alert("There are no pictures");
+      // }
+    } catch (error) {
+      this.setState({ error, isLoading: false });
+    }
   };
 
   scroll = () => {
@@ -79,25 +81,29 @@ class SearchImages extends Component {
   };
 
   changeModal = () => {
-    this.setState((prev) => ({
-      showModal: !prev.showModal,
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
     }));
   };
 
   render() {
     const { list, total, isLoading, showModal, largeImageURL } = this.state;
     const { searchFormSubmit, makeGallery, onPictureOpen, changeModal } = this;
+
     return (
       <>
         <Searchbar onSubmit={searchFormSubmit} />
-        {list.length !== 0 && (
+        {!total && <p className={styles.Message}>There are no pictures!</p>}
+        {Boolean(list.length) && (
           <ImageGallery list={list} onPictureOpen={onPictureOpen} />
         )}
         {isLoading && <Loader />}
-        {showModal && <Modal onClose={changeModal} largeUrl={largeImageURL} />}
-        {this.showBtnLoadMore() && total !== 0 && (
-          <Button onClick={makeGallery} />
+        {showModal && (
+          <Modal onClose={changeModal}>
+            <img src={largeImageURL} />
+          </Modal>
         )}
+        {this.showBtnLoadMore() && total && <Button onClick={makeGallery} />}
       </>
     );
   }

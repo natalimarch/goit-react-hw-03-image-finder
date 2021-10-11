@@ -1,4 +1,3 @@
-import react from "react";
 import styles from "../ImageGalleryItem/ImageGalleryItem.module.css";
 import PropTypes from "prop-types";
 
@@ -21,4 +20,5 @@ ImageGalleryItem.propTypes = {
   pageUrl: PropTypes.string.isRequired,
   largeUrl: PropTypes.string.isRequired,
   onPictureOpen: PropTypes.func.isRequired,
+  tags: PropTypes.string,
 };

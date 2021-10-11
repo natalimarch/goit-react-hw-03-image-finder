@@ -22,7 +22,11 @@ const ImageGallery = ({ list, onPictureOpen }) => {
 
 export default ImageGallery;
 
+ImageGallery.defaultProps = {
+  onPictureOpen: () => {},
+};
+
 ImageGallery.propTypes = {
   list: PropTypes.array.isRequired,
-  onPictureOpen: PropTypes.func.isRequired,
+  onPictureOpen: PropTypes.func,
 };
